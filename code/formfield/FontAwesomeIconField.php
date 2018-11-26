@@ -1,25 +1,27 @@
 <?php
 
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\GroupedDropdownField;
+use SilverStripe\View\HTML;
+use SilverStripe\View\Requirements;
+
 class FontAwesomeIconField extends GroupedDropdownField
 {
     public function __construct($name, $title = null)
     {
         parent::__construct($name, $title);
-        $this->addExtraClass('font-awesome-picker select2 no-chzn');
+        $this->addExtraClass('font-awesome-picker dropdown no-change-track select2 no-chzn');
         $this->setEmptyString('Select an icon...');
     }
 
 
-    protected static $extensions = [
-        'FontAwesomeIconFieldConfigProvider'
+    private static $extensions = [
+        FontAwesomeIconFieldConfigProvider::class
     ];
 
     public function getSource()
     {
-
-        $icons =  Config::inst()->get(get_called_class(), 'icons')['categorized'];
-
-        return $icons;
+        return Config::inst()->get(__CLASS__, 'icons')['categorized'];
     }
 
     public function getAttributes()
@@ -40,17 +42,17 @@ class FontAwesomeIconField extends GroupedDropdownField
     public function Field($properties = array())
     {
 
-        $version = $this->config()->get('version');
+        $version = self::config()->get('version');
         Requirements::css("//maxcdn.bootstrapcdn.com/font-awesome/{$version}/css/font-awesome.min.css");
         Requirements::css('//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css');
         Requirements::javascript('//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.full.min.js');
-        Requirements::javascript(ICONPICKER_DIR . "/javascript/iconpicker.js");
+        Requirements::javascript('hailwood/silverstripe-fontawesome:client/javascript/iconpicker.js');
 
         //additional styling to fit the moderno admin theme
         if (class_exists('ModernoAdminExtension')) {
-            Requirements::css(ICONPICKER_DIR . "/css/iconpicker-moderno.css");
+            Requirements::css('hailwood/silverstripe-fontawesome:client/css/iconpicker-moderno.css');
         } else {
-            Requirements::css(ICONPICKER_DIR . "/css/iconpicker-standard.css");
+            Requirements::css('hailwood/silverstripe-fontawesome:client/css/iconpicker-standard.css');
         }
 
         $options = '';
@@ -84,7 +86,7 @@ class FontAwesomeIconField extends GroupedDropdownField
             }
         }
 
-        return FormField::create_tag('select', $this->getAttributes(), $options);
+        return HTML::createTag('select', $this->getAttributes(), $options);
     }
 
 }

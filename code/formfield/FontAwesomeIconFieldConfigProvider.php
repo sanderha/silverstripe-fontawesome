@@ -1,5 +1,8 @@
 <?php
 
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Flushable;
+use SilverStripe\ORM\DataExtension;
 use Symfony\Component\Yaml\Yaml;
 
 class FontAwesomeIconFieldConfigProvider extends DataExtension implements Flushable
@@ -10,24 +13,28 @@ class FontAwesomeIconFieldConfigProvider extends DataExtension implements Flusha
         self::removeCache();
     }
 
-    public static function get_extra_config($class, $extensionClass, $extensionArgs)
+    public static function get_extra_config($class, $extensionClass, $args)
     {
-        $statics   = parent::get_extra_config($class, $extensionClass, $extensionArgs);
-        if($iconData = self::readCacheFile()){
+        $statics = [];
+        if ($iconData = self::readCacheFile()) {
             $statics['icons'] = $iconData;
             $statics['icons']['from_cache'] = true;
+
             return $statics;
         } else {
             $statics['icons'] = self::updateCacheFile();
             $statics['icons']['from_cache'] = false;
+
             return $statics;
         }
     }
 
     protected static function cacheFilePath()
     {
-        $version = Config::inst()->get('FontAwesomeIconField', 'version');
-        return $cacheFile = TEMP_FOLDER . "font-awesome-{$version}-icons.cache";
+        //$version = FontAwesomeIconField::config()->get('version');
+        $version = '4.6.3';
+
+        return TEMP_FOLDER . "font-awesome-{$version}-icons.cache";
     }
 
     protected static function cacheFileExists()
@@ -42,8 +49,10 @@ class FontAwesomeIconFieldConfigProvider extends DataExtension implements Flusha
         }
     }
 
-    protected static function updateCacheFile(){
-        $version             = Config::inst()->get('FontAwesomeIconField', 'version');
+    protected static function updateCacheFile()
+    {
+        //$version = FontAwesomeIconField::config()->get('version');
+        $version = '4.6.3';
         $fontAwesomeYamlText = file_get_contents("https://raw.githubusercontent.com/FortAwesome/Font-Awesome/v{$version}/src/icons.yml");
 
         $yamlToSave = [
@@ -71,9 +80,14 @@ class FontAwesomeIconFieldConfigProvider extends DataExtension implements Flusha
 
     protected static function readCacheFile()
     {
-        if (!self::cacheFileExists()) return false;
+        if (!self::cacheFileExists()) {
+            return false;
+        }
         $cacheData = unserialize(file_get_contents(self::cacheFilePath()));
-        if (!is_array($cacheData) || empty($cacheData)) return false;
+        if (!is_array($cacheData) || empty($cacheData)) {
+            return false;
+        }
+
         return $cacheData;
     }
 }

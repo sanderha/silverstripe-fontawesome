@@ -1,5 +1,9 @@
 <?php
 
+use SilverStripe\Core\Config\Config;
+use SilverStripe\ORM\DB;
+use SilverStripe\ORM\FieldType\DBField;
+
 class FontAwesomeIcon extends DBField
 {
 
@@ -36,9 +40,10 @@ class FontAwesomeIcon extends DBField
 
     /**
      * @param null $title
+     * @param null $params
      * @return FormField
      */
-    public function scaffoldFormField($title = null)
+    public function scaffoldFormField($title = null, $params = null)
     {
         return FontAwesomeIconField::create($this->name, $title);
     }
